@@ -1,10 +1,10 @@
 import { Sequelize } from "sequelize-typescript";
 import ProductModel from "../../../infrastructure/product/repository/sequelize/product.model";
 import ProductRepository from "../../../infrastructure/product/repository/sequelize/product.repository";
-import FindProductUseCase from "./find.product.usecase";
+import UpdateProductUseCase from "./update.product.usecase";
 import ProductFactory from "../../../domain/product/factory/product.factory";
 
-describe("Test find product use case", () => {
+describe("Test find update use case", () => {
   let sequelize: Sequelize;
 
   beforeEach(async () => {
@@ -23,26 +23,24 @@ describe("Test find product use case", () => {
     await sequelize.close();
   });
 
-  it("should find a product", async () => {
+  it("should list products", async () => {
     const productRepository = new ProductRepository();
-    const usecase = new FindProductUseCase(productRepository);
 
-   const product = ProductFactory.create("a", "Coca cola Zero", 8.77);
-   
-    await productRepository.create(product);
+    const product1 = ProductFactory.create("a", "Coca cola", 8.77);
+    await productRepository.create(product1);
 
-    const input = {
-      id: product.id,
-    };
+    const usecase = new UpdateProductUseCase(productRepository);
 
-    const output = {
-      id: product.id,
+    const result = await usecase.execute({
+      id: product1.id,
       name: "Coca cola Zero",
       price: 8.77,
-    };
+      type: "a",
+    });
 
-    const result = await usecase.execute(input);
+    expect(result.id).toBe(product1.id);
+    expect(result.name).toBe("Coca cola Zero");
+    expect(result.price).toBe(8.77);
 
-    expect(result).toEqual(output);
   });
 });

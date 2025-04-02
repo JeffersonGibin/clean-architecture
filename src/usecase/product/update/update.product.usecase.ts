@@ -15,10 +15,14 @@ export default class UpdateProductUseCase {
   ): Promise<OutputUpdateProdutDto> {
     const productFounded = await this.ProductRepository.find(input.id);
 
+    if (!productFounded) {
+      throw new Error("Product not found");
+    }
+
     const product = ProductFactory.create(
       input.type,
-      productFounded.name,
-      productFounded.price,
+      input.name,
+      input.price,
     );
 
     await this.ProductRepository.update(product);
